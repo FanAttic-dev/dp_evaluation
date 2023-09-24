@@ -71,6 +71,13 @@ class TVCalibWrapper:
 
         self.pitch_model = cv2.imread("./assets/pitch_model.png")
         self.pitch_h, self.pitch_w, _ = self.pitch_model.shape
+        self.pitch_model_red = self.get_pitch_model_red()
+
+    def get_pitch_model_red(self):
+        pitch = self.pitch_model
+        pitch[:, :, 0] = 0
+        pitch[:, :, 1] = 0
+        return pitch
 
     def segment(self):
         print("Segmentation start")
@@ -253,6 +260,14 @@ class TVCalibWrapper:
         ax.get_yaxis().set_ticks([])
         return fig, ax
 
+    def show_img(self, img, ax=None):
+        if ax is None:
+            _, ax = self.init_figure()
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        ax.imshow(img)
+        plt.show()
+
     def warp_frame_1(self, sample):
         # image_id = Path(sample.image_id).stem
         # image = Image.open(self.args.images_path /
@@ -306,15 +321,15 @@ class TVCalibWrapper:
         # ax.imshow(image)
         plt.show()
 
-    def warp_frame(self, sample):
+    def warp_frame(self, sample, overlay=False):
         H_frame = np.array(sample["homography"])
         H = self.H_norm @ H_frame
 
         img = cv2.imread(str(self.args.images_path / sample.image_id))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
         img_warped = cv2.warpPerspective(img, H, (self.pitch_w, self.pitch_h))
 
-        img_warped += self.pitch_model
+        if overlay:
+            img_warped = cv2.add(
+                img_warped, (self.pitch_model_red * 0.5).astype(np.uint8))
 
         return img_warped
