@@ -5,6 +5,7 @@ from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Union
+import cv2
 
 import numpy as np
 import kornia
@@ -28,6 +29,7 @@ from tvcalib.utils.objects_3d import SoccerPitchLineCircleSegments, SoccerPitchS
 from tvcalib.inference import InferenceDatasetCalibration, InferenceDatasetSegmentation, InferenceSegmentationModel
 from tvcalib.inference import get_camera_from_per_sample_output
 from tvcalib.utils import visualization_mpl_min as viz
+from utils import coords_to_pts, load_json
 
 
 class TVCalibWrapper:
@@ -53,6 +55,22 @@ class TVCalibWrapper:
         self.object3dcpu = SoccerPitchLineCircleSegments(
             device="cpu", base_field=SoccerPitchSNCircleCentralSplit()
         )
+
+        sn_pitch = SoccerPitch()
+        pitch_coords = load_json("assets/coords_pitch_model.json")
+        corners_pitch = coords_to_pts(pitch_coords)
+
+        corners_pitch_norm = np.array([
+            sn_pitch.bottom_left_corner,
+            sn_pitch.top_left_corner,
+            sn_pitch.top_right_corner,
+            sn_pitch.bottom_right_corner,
+        ])
+
+        self.H_norm, _ = cv2.findHomography(corners_pitch_norm, corners_pitch)
+
+        pitch_model = cv2.imread("./assets/pitch_model.png")
+        self.pitch_h, self.pitch_w, _ = pitch_model.shape
 
     def segment(self):
         print("Segmentation start")
@@ -223,3 +241,77 @@ class TVCalibWrapper:
                 # plt.savefig(self.args.output_dir / f"{image_id}.svg", dpi=dpi)
                 plt.savefig(self.args.output_dir / f"{image_id}.png", dpi=dpi)
                 sample.to_csv(self.args.output_dir / f"{image_id}.csv")
+
+    def init_figure(self):
+        figsize = (16, 9)
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.get_xaxis().set_ticks([])
+        ax.get_yaxis().set_ticks([])
+        return fig, ax
+
+    def warp_frame_1(self, sample):
+        # image_id = Path(sample.image_id).stem
+        # image = Image.open(self.args.images_path /
+        #                    sample.image_id).convert("RGB")
+        # image = T.functional.to_tensor(image)
+
+        scaling_factor = 2
+        image = torch.ones(
+            [1, 1, int(68 * scaling_factor), int(105 * scaling_factor)])
+        scaling_mat = torch.eye(3).repeat(1, 1, 1)
+        scaling_mat[:, 0, 0] = scaling_mat[:, 1, 1] = scaling_factor
+
+        h = torch.from_numpy(
+            np.array(sample["homography"])).unsqueeze(0).float()
+
+        # h_norm = kornia.geometry.normalize_homography(
+        #     h, dsize_src=(68, 105), dsize_dst=(68, 105))
+
+        warped = kornia.geometry.transform.homography_warp(
+            image, scaling_mat, dsize=image.shape[-2:],
+            normalized_coordinates=True, normalized_homography=True)
+
+        image = warped.squeeze(0)
+
+        fig, ax = self.init_figure()
+        ax = viz.draw_image(ax, image)
+        # ax.imshow(image)
+        plt.show()
+
+    def warp_frame_2(self, sample):
+        image_id = Path(sample.image_id).stem
+        image = Image.open(self.args.images_path /
+                           sample.image_id).convert("RGB")
+        image = T.functional.to_tensor(image).unsqueeze(0)
+
+        h = torch.from_numpy(
+            np.array(sample["homography"])).unsqueeze(0).float()
+        h_norm = kornia.geometry.normalize_homography(
+            h.inverse(), dsize_src=(68, 105), dsize_dst=image.shape[-2:])
+
+        print(image.shape[-2:])
+
+        warped = kornia.geometry.transform.homography_warp(
+            image, h_norm, dsize=image.shape[-2:],
+            normalized_coordinates=True, normalized_homography=True)
+
+        image = warped.squeeze(0)
+
+        fig, ax = self.init_figure()
+        ax = viz.draw_image(ax, image)
+        # ax.imshow(image)
+        plt.show()
+
+    def warp_frame(self, sample):
+        H_frame = np.array(sample["homography"])
+        H = self.H_norm @ H_frame
+
+        img = cv2.imread(str(self.args.images_path / sample.image_id))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        img_warped = cv2.warpPerspective(img, H, (self.pitch_w, self.pitch_h))
+        return img_warped
