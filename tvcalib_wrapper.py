@@ -268,59 +268,6 @@ class TVCalibWrapper:
         ax.imshow(img)
         plt.show()
 
-    def warp_frame_1(self, sample):
-        # image_id = Path(sample.image_id).stem
-        # image = Image.open(self.args.images_path /
-        #                    sample.image_id).convert("RGB")
-        # image = T.functional.to_tensor(image)
-
-        scaling_factor = 2
-        image = torch.ones(
-            [1, 1, int(68 * scaling_factor), int(105 * scaling_factor)])
-        scaling_mat = torch.eye(3).repeat(1, 1, 1)
-        scaling_mat[:, 0, 0] = scaling_mat[:, 1, 1] = scaling_factor
-
-        h = torch.from_numpy(
-            np.array(sample["homography"])).unsqueeze(0).float()
-
-        # h_norm = kornia.geometry.normalize_homography(
-        #     h, dsize_src=(68, 105), dsize_dst=(68, 105))
-
-        warped = kornia.geometry.transform.homography_warp(
-            image, scaling_mat, dsize=image.shape[-2:],
-            normalized_coordinates=True, normalized_homography=True)
-
-        image = warped.squeeze(0)
-
-        fig, ax = self.init_figure()
-        ax = viz.draw_image(ax, image)
-        # ax.imshow(image)
-        plt.show()
-
-    def warp_frame_2(self, sample):
-        image_id = Path(sample.image_id).stem
-        image = Image.open(self.args.images_path /
-                           sample.image_id).convert("RGB")
-        image = T.functional.to_tensor(image).unsqueeze(0)
-
-        h = torch.from_numpy(
-            np.array(sample["homography"])).unsqueeze(0).float()
-        h_norm = kornia.geometry.normalize_homography(
-            h.inverse(), dsize_src=(68, 105), dsize_dst=image.shape[-2:])
-
-        print(image.shape[-2:])
-
-        warped = kornia.geometry.transform.homography_warp(
-            image, h_norm, dsize=image.shape[-2:],
-            normalized_coordinates=True, normalized_homography=True)
-
-        image = warped.squeeze(0)
-
-        fig, ax = self.init_figure()
-        ax = viz.draw_image(ax, image)
-        # ax.imshow(image)
-        plt.show()
-
     def warp_frame(self, sample, overlay=False):
         H_frame = np.array(sample["homography"])
         H = self.H_norm @ H_frame
