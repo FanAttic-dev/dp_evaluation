@@ -32,18 +32,18 @@ from utils import coords_to_pts, load_json
 
 
 class TVCalibWrapper:
-    def __init__(self):
+    def __init__(self, images_path, output_dir):
         self.args = Namespace(
-            images_path=Path("data/datasets/test-autocam"),
-            output_dir=Path("tmp"),
+            images_path=images_path,
+            output_dir=output_dir,
             checkpoint="data/segment_localization/train_59.pt",
             gpu=True,
             nworkers=1,
-            batch_size_seg=32,
-            batch_size_calib=32,
+            batch_size_seg=16,
+            batch_size_calib=256,
             image_width=1280,
             image_height=720,
-            optim_steps=1000,
+            optim_steps=2000,
             lens_dist=False,
             write_masks=False
         )
