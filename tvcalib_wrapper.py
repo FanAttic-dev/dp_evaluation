@@ -69,8 +69,8 @@ class TVCalibWrapper:
 
         self.H_norm, _ = cv2.findHomography(corners_pitch_norm, corners_pitch)
 
-        pitch_model = cv2.imread("./assets/pitch_model.png")
-        self.pitch_h, self.pitch_w, _ = pitch_model.shape
+        self.pitch_model = cv2.imread("./assets/pitch_model.png")
+        self.pitch_h, self.pitch_w, _ = self.pitch_model.shape
 
     def segment(self):
         print("Segmentation start")
@@ -314,4 +314,7 @@ class TVCalibWrapper:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         img_warped = cv2.warpPerspective(img, H, (self.pitch_w, self.pitch_h))
+
+        img_warped += self.pitch_model
+
         return img_warped
