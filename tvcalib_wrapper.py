@@ -17,7 +17,6 @@ from PIL import Image
 from tqdm.auto import tqdm
 import pandas as pd
 from SoccerNet.Evaluation.utils_calibration import SoccerPitch
-import time
 
 from tvcalib.cam_modules import SNProjectiveCamera
 from tvcalib.module import TVCalibModule
