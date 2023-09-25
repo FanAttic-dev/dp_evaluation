@@ -45,7 +45,7 @@ class TVCalibWrapper:
             image_height=720,
             optim_steps=2000,
             lens_dist=False,
-            write_masks=False
+            write_masks=True
         )
         self.device = "cuda" if self.args.gpu and torch.cuda.is_available() else "cpu"
         self.object3d = SoccerPitchLineCircleSegments(
@@ -130,7 +130,7 @@ class TVCalibWrapper:
                     mask = Image.fromarray(mask.astype(np.uint8)).convert("P")
                     mask.putpalette(lines_palette)
                     mask.convert("RGB").save(
-                        self.args.output_dir / "masks" / image_id)
+                        self.args.output_dir / "masks" / Path(image_id).name)
 
             image_ids.extend(batch_dict["image_id"])
             keypoints_raw.extend(keypoints_raw_batch)
@@ -267,11 +267,15 @@ class TVCalibWrapper:
         ax.imshow(img)
         plt.show()
 
+    def img_id2img_path(self, image_id):
+        return self.args.images_path / image_id
+
     def warp_frame(self, sample, overlay=False):
         H_frame = np.array(sample["homography"])
         H = self.H_norm @ H_frame
 
-        img = cv2.imread(str(self.args.images_path / sample.image_id))
+        img_path = self.img_id2img_path(sample.image_id)
+        img = cv2.imread(str(img_path))
         img_warped = cv2.warpPerspective(img, H, (self.pitch_w, self.pitch_h))
 
         if overlay:
@@ -279,3 +283,9 @@ class TVCalibWrapper:
                 img_warped, (self.pitch_model_red * 0.5).astype(np.uint8))
 
         return img_warped
+
+    def save_frame(self, sample, img_warped):
+        img_path = self.img_id2img_path(sample.image_id)
+        stem = img_path.stem + "_warped"
+        img_warped_path = img_path.with_stem(stem)
+        cv2.imwrite(str(img_warped_path), img_warped)
