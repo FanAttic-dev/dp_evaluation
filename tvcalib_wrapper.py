@@ -45,7 +45,7 @@ class TVCalibWrapper:
             image_height=720,
             optim_steps=2000,
             lens_dist=False,
-            write_masks=True
+            write_masks=False
         )
         self.device = "cuda" if self.args.gpu and torch.cuda.is_available() else "cpu"
         self.object3d = SoccerPitchLineCircleSegments(
