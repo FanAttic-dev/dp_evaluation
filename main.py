@@ -6,7 +6,6 @@ import os
 import sys
 sys.path.append('./tvcalib') if os.path.isdir('./tvcalib') else ''
 
-# images_path = Path("data/datasets/test-autocam")
 images_path = Path("../../datasets/TrnavaZilina/VAR")
 output_dir = Path("tmp")
 
