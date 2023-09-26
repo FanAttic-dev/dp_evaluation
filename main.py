@@ -19,5 +19,5 @@ df = tvcalib_wrapper.calibrate(image_ids, keypoints_raw)
 
 # Warp & save
 for idx, sample in df.iterrows():
-    img_warped = tvcalib_wrapper.warp_frame(sample, overlay=True)
+    img_warped = tvcalib_wrapper.warp_frame(sample, overlay=False)
     tvcalib_wrapper.save_frame(sample, img_warped)
