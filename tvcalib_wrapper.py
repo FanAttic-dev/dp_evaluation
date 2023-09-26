@@ -43,7 +43,7 @@ class TVCalibWrapper:
             batch_size_calib=256,
             image_width=1280,
             image_height=720,
-            optim_steps=2000,
+            optim_steps=5000,
             lens_dist=False,
             write_masks=False
         )
