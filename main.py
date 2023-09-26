@@ -2,9 +2,7 @@ import matplotlib.pyplot as plt
 from tvcalib_wrapper import TVCalibWrapper
 from pathlib import Path
 import numpy as np
-import os
-import sys
-sys.path.append('./tvcalib') if os.path.isdir('./tvcalib') else ''
+import pandas as pd
 
 images_path = Path("../../datasets/TrnavaZilina/VAR")
 output_dir = Path("tmp")
@@ -21,3 +19,7 @@ df = tvcalib_wrapper.calibrate(image_ids, keypoints_raw)
 for idx, sample in df.iterrows():
     img_warped = tvcalib_wrapper.warp_frame(sample, overlay=False)
     tvcalib_wrapper.save_frame(sample, img_warped)
+
+df_losses = pd.DataFrame(df, columns=[
+                         "homography", "loss_ndc_lines", "loss_ndc_circles", "loss_ndc_total"])
+df_losses.to_csv(images_path / "losses.csv", )
