@@ -59,7 +59,9 @@ def show_overlap(main_im, var_im):
 
 
 var_path = Path("../../datasets/TrnavaZilina/VAR")
-main_path = Path("../dp_autocam/recordings")
+main_path = Path("../dp_autocam/recordings/MATCH/2023-09-26")
+
+assert var_path.exists() and main_path.exists()
 
 LOSS_THRESHOLD = 0.02
 EPS = 1e-6
@@ -94,7 +96,7 @@ for period in ["p0", "p1"]:
 
         main_im = cv2.imread(str(main_im_path))
         var_im = cv2.imread(str(var_im_path))
-        # compare_view(main_im, var_im)
+        compare_view(main_im, var_im)
 
         main_mask = threshold(main_im)
         var_mask = threshold(var_im)
