@@ -89,14 +89,14 @@ for period in ["p0", "p1"]:
         df_idx = df.index == var_id
         loss = df[df_idx]["loss_ndc_total"].item()
         if loss > LOSS_THRESHOLD:
-            ious[df_idx] = -1
+            ious[df_idx] = np.nan
             n_skipped += 1
             print(f"[{var_id}]: Skipping with loss: {loss}")
             continue
 
         main_im = cv2.imread(str(main_im_path))
         var_im = cv2.imread(str(var_im_path))
-        compare_view(main_im, var_im)
+        # compare_view(main_im, var_im)
 
         main_mask = threshold(main_im)
         var_mask = threshold(var_im)
