@@ -69,7 +69,11 @@ EPS = 1e-6
 df = pd.read_csv(var_path / "losses.csv", index_col="image_id")
 
 warped_pattern = "*_warped.jpg"
-ious = np.zeros(len(df))
+ious = np.empty(len(df))
+ious.fill(np.nan)
+n_skipped = 0
+n_processed = 0
+iou_total = 0
 for period in ["p0", "p1"]:
     main_folder = main_path / f"main_{period}_frames"
     var_folder = var_path / f"var_{period}_frames"
@@ -78,9 +82,6 @@ for period in ["p0", "p1"]:
     var_imgs = sorted(var_folder.glob(warped_pattern))
 
     n = min(len(var_imgs), len(main_imgs))
-    n_skipped = 0
-    n_processed = 0
-    iou_total = 0
     for i in range(n):
         main_im_path = main_imgs[i]
         var_im_path = var_imgs[i]
@@ -116,8 +117,7 @@ for period in ["p0", "p1"]:
 
         n_processed += 1
 
-iou_avg = iou_total / n_processed
 df["iou"] = ious
 df.to_csv(var_path / "losses_iou.csv")
 print(
-    f"Finished with {n_skipped} skipped and {n_processed} processed. Avg IoU: {iou_avg}")
+    f"Finished with {n_skipped} skipped and {n_processed} processed. Avg IoU: {np.nanmean(ious)}, Median IoU: {np.nanmedian(ious)}")
