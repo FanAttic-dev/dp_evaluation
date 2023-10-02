@@ -1,7 +1,5 @@
-export PYTHONPATH := "${PYTHONPATH}:./tvcalib"
-
 calibrate: 
-	echo ${PYTHONPATH}
+	export PYTHONPATH="${PYTHONPATH}:./tvcalib" && \
 	python calibrate.py
 
 evaluate:
