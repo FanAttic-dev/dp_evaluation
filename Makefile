@@ -1,4 +1,4 @@
-# export PYTHONPATH="$${PYTHONPATH}:./tvcalib"
+export PYTHONPATH := "${PYTHONPATH}:./tvcalib"
 
 calibrate: 
 	python calibrate.py
