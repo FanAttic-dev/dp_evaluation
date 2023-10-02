@@ -1,5 +1,5 @@
 calibrate: 
-	export PYTHONPATH=${PYTHONPATH}:./tvcalib
+	export PYTHONPATH="${PYTHONPATH}:./tvcalib"
 	python calibrate.py
 
 evaluate:
