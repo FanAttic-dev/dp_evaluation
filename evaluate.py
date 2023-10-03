@@ -20,7 +20,7 @@ def compare_view(main_im, var_im):
 
     plt.subplots_adjust(hspace=0.01, wspace=0.01,
                         left=0.01, bottom=0.01, right=0.99, top=0.99)
-    plt.show()
+    # plt.show()
 
 
 def threshold(im):
@@ -29,7 +29,13 @@ def threshold(im):
     return im
 
 
-def show_overlap(main_im, var_im):
+def get_thresholds(df):
+    q1, q3 = df["loss_ndc_total"].quantile([0.25, 0.75])
+    iqr = q3 - q1
+    return q1 - 1.5 * iqr, q3 + 1.5 * iqr
+
+
+def show_overlap(main_im, var_im, iou):
     assert main_im.shape == var_im.shape
     h, w = main_im.shape
 
@@ -48,14 +54,14 @@ def show_overlap(main_im, var_im):
     im = cv2.addWeighted(im_cameras, 0.7, im_overlap, 1, 0)
 
     figure, ax = plt.subplots()
-    ax.set_title("Overlapped")
+    ax.set_title(f"IoU: {iou:.6f}")
     ax.imshow(im)
 
     patches = [mpatches.Patch(color=np.array(v)*0.9, label=k)
                for k, v in colors.items()]
     ax.legend(handles=patches, loc="lower right")
 
-    plt.show()
+    # plt.show()
 
 
 var_path = Path("../../datasets/TrnavaZilina/VAR")
@@ -63,10 +69,11 @@ main_path = Path("../dp_autocam/recordings/MATCH/2023-10-03")
 
 assert var_path.exists() and main_path.exists()
 
-LOSS_THRESHOLD = 0.02
 EPS = 1e-6
 
 df = pd.read_csv(var_path / "losses.csv", index_col="image_id")
+
+th_low, th_high = get_thresholds(df)
 
 warped_pattern = "*_warped.jpg"
 ious = np.empty(len(df))
@@ -89,8 +96,10 @@ for period in ["p0", "p1"]:
 
         var_id = image_path2image_id(var_im_path).replace("_warped", "")
         df_idx = df.index == var_id
+        df_idx_i = df_idx.nonzero()[0].item()
+        main_paths[df_idx_i] = image_path2image_id(main_im_path)
         loss = df[df_idx]["loss_ndc_total"].item()
-        if loss > LOSS_THRESHOLD:
+        if loss > th_high or loss < th_low:
             ious[df_idx] = np.nan
             n_skipped += 1
             print(f"[{var_id}]: Skipping with loss: {loss}")
@@ -98,11 +107,9 @@ for period in ["p0", "p1"]:
 
         main_im = cv2.imread(str(main_im_path))
         var_im = cv2.imread(str(var_im_path))
-        # compare_view(main_im, var_im)
 
         main_mask = threshold(main_im)
         var_mask = threshold(var_im)
-        # show_overlap(main_im_th, var_im_th)
 
         h, w = main_mask.shape
         intersection_mask = np.zeros((h, w, 1))
@@ -112,11 +119,12 @@ for period in ["p0", "p1"]:
         union = main_mask.sum() + var_mask.sum() - intersection
         iou = intersection / (union + EPS)
         ious[df_idx] = iou
-        main_paths[df_idx.nonzero()[0].item(
-        )] = image_path2image_id(main_im_path)
         iou_total += iou
 
         print(f"[{var_id}]: IoU = {iou}")
+        compare_view(main_im, var_im)
+        show_overlap(main_mask, var_mask, iou)
+        plt.show()
 
         n_processed += 1
 
@@ -124,4 +132,6 @@ df["image_main"] = main_paths
 df["iou"] = ious
 df.to_csv(main_path / "evaluation.csv")
 print(
-    f"Finished with {n_skipped} skipped and {n_processed} processed. Avg IoU: {np.nanmean(ious)}, Median IoU: {np.nanmedian(ious)}")
+    f"Finished with {n_skipped} skipped and {n_processed} processed.\n \
+        th_low: {th_low}, th_high: {th_high}\n \
+        Avg IoU: {np.nanmean(ious)}, Median IoU: {np.nanmedian(ious)}")
