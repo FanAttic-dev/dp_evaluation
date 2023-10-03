@@ -59,7 +59,7 @@ def show_overlap(main_im, var_im):
 
 
 var_path = Path("../../datasets/TrnavaZilina/VAR")
-main_path = Path("../dp_autocam/recordings/MATCH/2023-09-26")
+main_path = Path("../dp_autocam/recordings/MATCH/2023-10-03")
 
 assert var_path.exists() and main_path.exists()
 
