@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -6,6 +7,12 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 from tvcalib.inference import image_path2image_id
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--show', action='store_true')
+    return parser.parse_args()
 
 
 def compare_view(main_im, var_im):
@@ -64,6 +71,7 @@ def show_overlap(main_im, var_im, iou):
     # plt.show()
 
 
+args = parse_args()
 var_path = Path("../../datasets/TrnavaZilina/VAR")
 main_path = Path("../dp_autocam/recordings/MATCH/2023-10-03")
 
@@ -122,9 +130,10 @@ for period in ["p0", "p1"]:
         iou_total += iou
 
         print(f"[{var_id}]: IoU = {iou}")
-        compare_view(main_im, var_im)
-        show_overlap(main_mask, var_mask, iou)
-        plt.show()
+        if args.show:
+            compare_view(main_im, var_im)
+            show_overlap(main_mask, var_mask, iou)
+            plt.show()
 
         n_processed += 1
 
