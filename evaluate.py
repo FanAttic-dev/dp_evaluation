@@ -70,6 +70,7 @@ df = pd.read_csv(var_path / "losses.csv", index_col="image_id")
 
 warped_pattern = "*_warped.jpg"
 ious = np.empty(len(df))
+main_paths = [""] * len(df)
 ious.fill(np.nan)
 n_skipped = 0
 n_processed = 0
@@ -111,13 +112,16 @@ for period in ["p0", "p1"]:
         union = main_mask.sum() + var_mask.sum() - intersection
         iou = intersection / (union + EPS)
         ious[df_idx] = iou
+        main_paths[df_idx.nonzero()[0].item(
+        )] = image_path2image_id(main_im_path)
         iou_total += iou
 
         print(f"[{var_id}]: IoU = {iou}")
 
         n_processed += 1
 
+df["image_main"] = main_paths
 df["iou"] = ious
-df.to_csv(var_path / "losses_iou.csv")
+df.to_csv(main_path / "evaluation.csv")
 print(
     f"Finished with {n_skipped} skipped and {n_processed} processed. Avg IoU: {np.nanmean(ious)}, Median IoU: {np.nanmedian(ious)}")
