@@ -1,11 +1,11 @@
-base:
-	export PYTHONPATH="$${PYTHONPATH}:./tvcalib"
-
-calibrate: base
+calibrate: 
+	export PYTHONPATH="${PYTHONPATH}:./tvcalib" && \
 	python calibrate.py
 
-evaluate: base
+evaluate:
+	export PYTHONPATH="${PYTHONPATH}:./tvcalib" && \
 	python evaluate.py
 
-evaluate_show: base
+evaluate_show:
+	export PYTHONPATH="${PYTHONPATH}:./tvcalib" && \
 	python evaluate.py --show
