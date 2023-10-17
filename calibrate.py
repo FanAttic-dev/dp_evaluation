@@ -22,4 +22,4 @@ for idx, sample in df.iterrows():
 
 df_losses = pd.DataFrame(df, columns=[
                          "homography", "loss_ndc_lines", "loss_ndc_circles", "loss_ndc_total"])
-df_losses.to_csv(images_path / "losses.csv", )
+df_losses.to_csv(images_path / "losses.csv")
