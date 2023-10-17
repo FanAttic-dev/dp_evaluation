@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-images_path = Path("../../datasets/TrnavaZilina/VAR")
+images_path = Path("../../datasets/TrnavaZilina/VAR/full")
 output_dir = Path("tmp")
 
 tvcalib_wrapper = TVCalibWrapper(images_path, output_dir)
