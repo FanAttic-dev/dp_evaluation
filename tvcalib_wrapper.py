@@ -44,7 +44,7 @@ class TVCalibWrapper:
             image_width=1280,
             image_height=720,
             optim_steps=5000,
-            lens_dist=False,
+            lens_dist=True,
             write_masks=False
         )
         self.device = "cuda" if self.args.gpu and torch.cuda.is_available() else "cpu"
