@@ -1,11 +1,10 @@
-import matplotlib.pyplot as plt
-from tvcalib_wrapper import TVCalibWrapper
-from pathlib import Path
-import numpy as np
 import pandas as pd
 
-images_path = Path("../../datasets/TrnavaZilina/VAR/full")
-output_dir = Path("tmp")
+from tvcalib_wrapper import TVCalibWrapper
+from utils.config import Config
+
+images_path = Config.var_path
+output_dir = Config.masks_output_dir
 
 tvcalib_wrapper = TVCalibWrapper(images_path, output_dir)
 

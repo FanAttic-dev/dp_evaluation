@@ -7,7 +7,8 @@ videos_dir = Config.var_path
 im_size = Config.image_size
 export_int_sec = Config.export_int_sec
 
-for period in ["var_p0.mp4", "var_p1.mp4"]:
+
+def process_period(period: str):
     video_path = videos_dir / period
     frames_dir = videos_dir / \
         video_path.with_stem(f"{video_path.stem}_frames").stem
@@ -36,3 +37,8 @@ for period in ["var_p0.mp4", "var_p1.mp4"]:
         frame_id += 1
 
     player.release()
+
+
+if __name__ == "__main__":
+    for period in ["var_p0.mp4", "var_p1.mp4"]:
+        process_period(period)

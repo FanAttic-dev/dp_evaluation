@@ -28,7 +28,7 @@ from tvcalib.utils.objects_3d import SoccerPitchLineCircleSegments, SoccerPitchS
 from tvcalib.inference import InferenceDatasetCalibration, InferenceDatasetSegmentation, InferenceSegmentationModel
 from tvcalib.inference import get_camera_from_per_sample_output
 from tvcalib.utils import visualization_mpl_min as viz
-from utils.utils import coords_to_pts, load_yaml
+from utils.config import Config
 
 
 class TVCalibWrapper:
@@ -56,8 +56,7 @@ class TVCalibWrapper:
         )
 
         sn_pitch = SoccerPitch()
-        pitch_coords = load_yaml("assets/pitch_model_corners.yaml")
-        corners_pitch = coords_to_pts(pitch_coords)
+        corners_pitch = Config.pitch_corners
 
         corners_pitch_norm = np.array([
             sn_pitch.bottom_left_corner,
