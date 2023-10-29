@@ -14,12 +14,11 @@ def process_clip(clip_path: Path):
 
     player = VideoPlayer(clip_path)
 
-    is_alive = True
     frame_id = 0
+    is_alive = player.cap.grab()
     while is_alive:
-        is_alive = player.cap.grab()
-
         frame_sec = frame_id / int(player.fps)
+
         if frame_sec % export_int_sec == 0:
             frame_img_id = int(frame_sec // export_int_sec)
 
@@ -27,11 +26,12 @@ def process_clip(clip_path: Path):
                 f"{clip_path.stem}_frame_{frame_id:04d}.jpg"
             print(str(frame_path))
 
-            is_alive, frame = player.cap.retrieve()
+            _, frame = player.cap.retrieve()
             frame = cv2.resize(frame, im_size)
             cv2.imwrite(str(frame_path), frame)
 
         frame_id += 1
+        is_alive = player.cap.grab()
 
     player.release()
 
