@@ -15,30 +15,61 @@ from utils.visualization import compare_view, show_overlap
 class Evaluator:
     EPS = 1e-6
     WARPED_PATTERN = "*_warped.jpg"
+    LOSS_COL = "loss_ndc_total"
 
     def __init__(self, args: EvalArgsNamespace):
-        self.args = args
         self.var_path = Config.var_path
         self.main_path = Config.main_path
-
         assert self.var_path.exists() and self.main_path.exists()
 
+        self.args = args
+        self.csv_path_var = self.var_path / "losses.csv"
+        self.csv_path_main = self.main_path / "evaluation.csv"
+        self.is_evaluated = self.load_csv()
+
+    def load_csv(self):
+        if self.csv_path_main.exists():
+            print("evaluation.csv already present")
+            self.df = pd.read_csv(
+                self.csv_path_main,
+                index_col="image_id"
+            )
+
+            self.ious = self.df["iou"]
+            self.main_paths = self.df["image_main"]
+
+            self.th_low, self.th_high = self.thresholds
+            self.n_var = len(self.df)
+
+            self.n_processed = len(self.df[
+                (~self.df["iou"].isnull())
+                # (self.df[Evaluator.LOSS_COL] > self.th_low) &
+                # (self.df[Evaluator.LOSS_COL] < self.th_high)
+            ])
+            self.n_skipped = self.n_var - self.n_processed
+            self.iou_total = self.df["iou"].sum()
+            return True
+
         self.df = pd.read_csv(
-            self.var_path / "losses.csv", index_col="image_id")
+            self.csv_path_var,
+            index_col="image_id"
+        )
+
         self.n_var = len(self.df)
         self.th_low, self.th_high = self.thresholds
-        self.main_paths = [""] * self.n_var
 
         self.ious = np.empty(self.n_var)
         self.ious.fill(np.nan)
+        self.main_paths = [""] * self.n_var
 
-        self.n_skipped = 0
         self.n_processed = 0
+        self.n_skipped = 0
         self.iou_total = 0
+        return False
 
     @cached_property
     def thresholds(self):
-        q1, q3 = self.df["loss_ndc_total"].quantile([0.25, 0.75])
+        q1, q3 = self.df[Evaluator.LOSS_COL].quantile([0.25, 0.75])
         iqr = q3 - q1
         return q1 - 1.5 * iqr, q3 + 1.5 * iqr
 
@@ -54,7 +85,6 @@ class Evaluator:
             self.process_frame_folders(main_frame_folder, var_frame_folder)
 
         self.save_csv()
-        self.print_info()
 
     def get_frame_folders(self):
         var_frame_folders = sorted(
@@ -85,7 +115,7 @@ class Evaluator:
             df_idx = self.df.index == var_id
             df_idx_i = df_idx.nonzero()[0].item()
             self.main_paths[df_idx_i] = image_path2image_id(main_im_path)
-            loss = self.df[df_idx]["loss_ndc_total"].item()
+            loss = self.df[df_idx][Evaluator.LOSS_COL].item()
             if loss > self.th_high or loss < self.th_low:
                 self.ious[df_idx] = np.nan
                 self.n_skipped += 1
@@ -121,7 +151,7 @@ class Evaluator:
     def save_csv(self):
         self.df["image_main"] = self.main_paths
         self.df["iou"] = self.ious
-        self.df.to_csv(self.main_path / "evaluation.csv")
+        self.df.to_csv(self.csv_path_main)
 
     def print_info(self):
         print(
@@ -134,4 +164,6 @@ class Evaluator:
 if __name__ == "__main__":
     args = parse_args()
     evaluator = Evaluator(args)
-    evaluator.evaluate()
+    if not evaluator.is_evaluated:
+        evaluator.evaluate()
+    evaluator.print_info()

@@ -23,7 +23,7 @@ def process_clip(clip_path: Path):
             frame_img_id = int(frame_sec // export_int_sec)
 
             frame_path = frames_dir / \
-                f"{clip_path.stem}_frame_{frame_id:04d}.jpg"
+                f"{clip_path.stem}_frame_{frame_img_id:04d}.jpg"
             print(str(frame_path))
 
             _, frame = player.cap.retrieve()
