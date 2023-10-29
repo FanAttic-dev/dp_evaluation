@@ -1,16 +1,12 @@
 from collections import defaultdict
-import random
 from argparse import Namespace
 from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Union
 import cv2
 
 import numpy as np
-import kornia
 import torch
-import matplotlib
 import matplotlib.pyplot as plt
 import torchvision.transforms as T
 from PIL import Image
@@ -22,7 +18,7 @@ from tvcalib.cam_modules import SNProjectiveCamera
 from tvcalib.module import TVCalibModule
 from tvcalib.cam_distr.tv_main_tribune import get_cam_distr, get_dist_distr
 from sn_segmentation.src.custom_extremities import generate_class_synthesis, get_line_extremities
-from tvcalib.sncalib_dataset import custom_list_collate, split_circle_central
+from tvcalib.sncalib_dataset import custom_list_collate
 from tvcalib.utils.io import detach_dict, tensor2list
 from tvcalib.utils.objects_3d import SoccerPitchLineCircleSegments, SoccerPitchSNCircleCentralSplit
 from tvcalib.inference import InferenceDatasetCalibration, InferenceDatasetSegmentation, InferenceSegmentationModel
@@ -33,6 +29,8 @@ from utils.config import Config
 
 class TVCalibWrapper:
     def __init__(self, images_path, output_dir):
+        w, h = Config.image_size
+
         self.args = Namespace(
             images_path=images_path,
             output_dir=output_dir,
@@ -41,8 +39,8 @@ class TVCalibWrapper:
             nworkers=1,
             batch_size_seg=16,
             batch_size_calib=256,
-            image_width=1280,
-            image_height=720,
+            image_width=w,
+            image_height=h,
             optim_steps=5000,
             lens_dist=False,
             write_masks=False

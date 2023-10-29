@@ -8,18 +8,15 @@ im_size = Config.image_size
 export_int_sec = Config.export_int_sec
 
 
-def process_period(period: str):
-    video_path = videos_dir / period
-    frames_dir = videos_dir / \
-        video_path.with_stem(f"{video_path.stem}_frames").stem
+def process_clip(clip_path: Path):
+    frames_dir = clip_path.with_name(f"{clip_path.stem}_frames")
     Path.mkdir(frames_dir, exist_ok=False)
 
-    player = VideoPlayer(video_path)
+    player = VideoPlayer(clip_path)
 
     is_alive = True
     frame_id = 0
     while is_alive:
-        # is_alive, frame = player.get_next_frame()
         is_alive = player.cap.grab()
 
         frame_sec = frame_id / int(player.fps)
@@ -27,7 +24,7 @@ def process_period(period: str):
             frame_img_id = int(frame_sec // export_int_sec)
 
             frame_path = frames_dir / \
-                f"{video_path.stem}_frame_{frame_id:04d}.jpg"
+                f"{clip_path.stem}_frame_{frame_id:04d}.jpg"
             print(str(frame_path))
 
             is_alive, frame = player.cap.retrieve()
@@ -40,5 +37,6 @@ def process_period(period: str):
 
 
 if __name__ == "__main__":
-    for period in ["var_p0.mp4", "var_p1.mp4"]:
-        process_period(period)
+    clips = videos_dir.glob("*.mp4")
+    for clip in clips:
+        process_clip(clip)

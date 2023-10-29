@@ -4,11 +4,11 @@ from tvcalib_wrapper import TVCalibWrapper
 from utils.config import Config
 
 images_path = Config.var_path
-output_dir = Config.masks_output_dir
+masks_output_dir = Config.masks_output_dir
 
 
 def main():
-    tvcalib_wrapper = TVCalibWrapper(images_path, output_dir)
+    tvcalib_wrapper = TVCalibWrapper(images_path, masks_output_dir)
 
     # Segment
     image_ids, keypoints_raw = tvcalib_wrapper.segment()

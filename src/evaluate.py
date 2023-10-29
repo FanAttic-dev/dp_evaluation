@@ -1,8 +1,10 @@
 from functools import cached_property
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import cv2
 import matplotlib.pyplot as plt
+import re
 
 from tvcalib.inference import image_path2image_id
 from utils.argsparse import EvalArgsNamespace, parse_args
@@ -47,30 +49,33 @@ class Evaluator:
         return im
 
     def evaluate(self):
-        for period in ["p0", "p1"]:
-            self.process_period(period)
+        frame_folders = self.get_frame_folders()
+        for main_frame_folder, var_frame_folder in frame_folders:
+            self.process_frame_folders(main_frame_folder, var_frame_folder)
 
         self.save_csv()
         self.print_info()
 
-    def save_csv(self):
-        self.df["image_main"] = self.main_paths
-        self.df["iou"] = self.ious
-        self.df.to_csv(self.main_path / "evaluation.csv")
-
-    def print_info(self):
-        print(
-            f"Finished with {self.n_skipped} skipped and {self.n_processed} processed.\n \
-                th_low: {self.th_low}, th_high: {self.th_high}\n \
-                Avg IoU: {np.nanmean(self.ious)}, Median IoU: {np.nanmedian(self.ious)}"
+    def get_frame_folders(self):
+        var_frame_folders = sorted(
+            [f for f in self.var_path.iterdir() if f.is_dir()]
         )
 
-    def process_period(self, period: str):
-        main_folder = self.main_path / f"main_{period}_frames"
-        var_folder = self.var_path / f"var_{period}_frames"
+        frame_folders = []
+        for var_folder in var_frame_folders:
+            start, end = re.split("_var_", var_folder.name)
+            main_folders = [
+                f for f in self.main_path.iterdir()
+                if re.match(rf"{start}.*{end}", f.name)
+            ]
+            assert len(main_folders) == 1
+            frame_folders.append((main_folders[0], var_folder))
 
-        main_imgs = sorted(main_folder.glob(Evaluator.WARPED_PATTERN))
-        var_imgs = sorted(var_folder.glob(Evaluator.WARPED_PATTERN))
+        return frame_folders
+
+    def process_frame_folders(self, main_frame_folder: Path, var_frame_folder: Path):
+        main_imgs = sorted(main_frame_folder.glob(Evaluator.WARPED_PATTERN))
+        var_imgs = sorted(var_frame_folder.glob(Evaluator.WARPED_PATTERN))
 
         for main_im_path, var_im_path in zip(main_imgs, var_imgs):
             var_id = image_path2image_id(
@@ -112,6 +117,18 @@ class Evaluator:
                 plt.show()
 
             self.n_processed += 1
+
+    def save_csv(self):
+        self.df["image_main"] = self.main_paths
+        self.df["iou"] = self.ious
+        self.df.to_csv(self.main_path / "evaluation.csv")
+
+    def print_info(self):
+        print(
+            f"Finished with {self.n_skipped} skipped and {self.n_processed} processed.\n \
+                th_low: {self.th_low}, th_high: {self.th_high}\n \
+                Avg IoU: {np.nanmean(self.ious)}, Median IoU: {np.nanmedian(self.ious)}"
+        )
 
 
 if __name__ == "__main__":
