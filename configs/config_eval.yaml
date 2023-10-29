@@ -1,0 +1,12 @@
+---
+
+dataset:
+  var_path: "../../datasets/TrnavaZilina/VAR/full"
+  main_path: "../dp_autocam/recordings/2023-10-27/full"
+
+export_every_x_seconds: 10 # Time interval to export a warped frame.
+pitch_overlay: false # Overlay the pitch model scheme on the exported frame.
+
+image_size:
+  - 1280
+  - 720

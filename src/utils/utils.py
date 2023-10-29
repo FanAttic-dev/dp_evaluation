@@ -1,5 +1,5 @@
 import numpy as np
-import json
+import yaml
 
 
 def coords_to_pts(coords):
@@ -7,6 +7,6 @@ def coords_to_pts(coords):
     return pts.reshape((-1, 1, 2))
 
 
-def load_json(file_name):
+def load_yaml(file_name):
     with open(file_name, 'r') as f:
-        return json.load(f)
+        return yaml.safe_load(f)
