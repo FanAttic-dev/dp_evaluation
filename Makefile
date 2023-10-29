@@ -8,7 +8,7 @@ calibrate:
 	python src/calibrate.py
 
 evaluate:
-	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
+	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib:./src" && \
 	python src/evaluate.py
 
 evaluate_show:
