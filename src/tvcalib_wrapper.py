@@ -56,7 +56,7 @@ class TVCalibWrapper:
         )
 
         sn_pitch = SoccerPitch()
-        corners_pitch = Config.pitch_corners
+        corners_pitch = Config.load_pitch_corners()
 
         corners_pitch_norm = np.array([
             sn_pitch.bottom_left_corner,

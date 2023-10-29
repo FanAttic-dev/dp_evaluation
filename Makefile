@@ -3,7 +3,6 @@ export_var_frames:
 	python src/export_var_frames.py
 
 calibrate: 
-	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
 	python src/calibrate.py
 
 evaluate:

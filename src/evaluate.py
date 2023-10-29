@@ -7,12 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 from tvcalib.inference import image_path2image_id
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--show', action='store_true')
-    return parser.parse_args()
+from utils.argsparse import parse_args
+from utils.config import Config
 
 
 def compare_view(main_im, var_im):
@@ -72,8 +68,8 @@ def show_overlap(main_im, var_im, iou):
 
 
 args = parse_args()
-var_path = Path("../../datasets/TrnavaZilina/VAR/full")
-main_path = Path("../dp_autocam/recordings/2023-10-27/full")
+var_path = Config.var_path
+main_path = Config.main_path
 
 assert var_path.exists() and main_path.exists()
 

@@ -6,8 +6,8 @@ import utils.utils as utils
 
 class Config:
     @staticmethod
-    def load_pitch_corners(corners_path):
-        corners_dict = utils.load_yaml(corners_path)
+    def load_pitch_corners():
+        corners_dict = utils.load_yaml(Config.pitch_model_corners_path)
         pts = np.array(
             [[v["x"], v["y"]] for v in corners_dict.values()],
             dtype=np.int32
@@ -24,4 +24,4 @@ class Config:
     assets_path = Path('assets')
     pitch_model_path = assets_path / 'pitch_model.png'
     pitch_model_corners_path = assets_path / 'pitch_model_corners.yaml'
-    pitch_corners = load_pitch_corners(pitch_model_corners_path)
+    pitch_overlay = config["pitch_overlay"]
