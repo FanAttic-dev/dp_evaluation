@@ -9,6 +9,7 @@ import re
 from tvcalib.inference import image_path2image_id
 from utils.argsparse import EvalArgsNamespace, parse_args
 from utils.config import Config
+from utils.utils import save_to_file
 from utils.visualization import compare_view, show_overlap
 
 
@@ -25,6 +26,7 @@ class Evaluator:
         self.args = args
         self.csv_path_var = self.var_path / "losses.csv"
         self.csv_path_main = self.main_path / "evaluation.csv"
+        self.txt_result_path = self.main_path / "result.txt"
         self.is_evaluated = self.load_csv()
 
     def load_csv(self):
@@ -154,11 +156,30 @@ class Evaluator:
         self.df.to_csv(self.csv_path_main)
 
     def print_info(self):
-        print(
-            f"Finished with {self.n_skipped} skipped and {self.n_processed} processed.\n \
-                th_low: {self.th_low}, th_high: {self.th_high}\n \
-                Avg IoU: {np.nanmean(self.ious)}, Median IoU: {np.nanmedian(self.ious)}"
+        self.df["directory"] = self.df.image_main.apply(
+            lambda path: Path(path).parts[-2]
         )
+        df_grouped = self.df.groupby("directory")
+        df_info = pd.DataFrame({
+            "iou_mean": df_grouped["iou"].mean(),
+            "iou_median": df_grouped["iou"].median(),
+        })
+
+        info = f"""
+Finished with {self.n_skipped} skipped and {self.n_processed} processed.
+    th_low: {self.th_low:.9f}
+    th_high: {self.th_high:.9f}
+    
+"""
+
+        info += str(df_info)
+        info += f"""
+        
+Overall iou_mean: {np.nanmean(self.ious):.9f}
+Overall iou_median: {np.nanmedian(self.ious):.9f}
+"""
+        save_to_file(self.txt_result_path, info)
+        print(info)
 
 
 if __name__ == "__main__":

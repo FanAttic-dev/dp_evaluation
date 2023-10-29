@@ -1,12 +1,12 @@
-import numpy as np
+from pathlib import Path
 import yaml
 
 
-def coords_to_pts(coords):
-    pts = np.array([[v["x"], v["y"]] for v in coords.values()], dtype=np.int32)
-    return pts.reshape((-1, 1, 2))
-
-
-def load_yaml(file_name):
+def load_yaml(file_name: str):
     with open(file_name, 'r') as f:
         return yaml.safe_load(f)
+
+
+def save_to_file(file_path: Path, text: str):
+    with open(file_path, 'w') as f:
+        f.write(text)
