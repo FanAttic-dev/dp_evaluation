@@ -1,5 +1,6 @@
 # DP_evaluation
 
+ - [ ] download model to assets/weights/segment_localization
 
 
 ## Getting started
