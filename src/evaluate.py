@@ -63,7 +63,7 @@ class Evaluator:
 
         frame_folders = []
         for var_folder in var_frame_folders:
-            start, end = re.split("_var_", var_folder.name)
+            start, end = re.split("var_", var_folder.name)
             main_folders = [
                 f for f in self.main_path.iterdir()
                 if re.match(rf"{start}.*{end}", f.name)
