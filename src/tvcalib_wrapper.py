@@ -36,7 +36,7 @@ class TVCalibWrapper:
         self.args = Namespace(
             images_path=images_path,
             output_dir=output_dir,
-            checkpoint="data/segment_localization/train_59.pt",
+            checkpoint="assets/weights/segment_localization/train_59.pt",
             gpu=True,
             nworkers=1,
             batch_size_seg=16,
