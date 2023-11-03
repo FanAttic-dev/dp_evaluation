@@ -157,7 +157,8 @@ class Evaluator:
 
     def print_info(self):
         self.df["directory"] = self.df.image_main.apply(
-            lambda path: Path(path).parts[-2]
+            lambda path: Path(
+                path).parts[-2] if not pd.isnull(path) and len(path) > 0 else None
         )
         df_grouped = self.df.groupby("directory")
         df_info = pd.DataFrame({
