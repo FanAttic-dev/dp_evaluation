@@ -29,6 +29,7 @@ class Evaluator:
         self.txt_result_path = self.main_path / "result.txt"
         self.figures_path = self.main_path / "figures"
         self.is_evaluated = self.load_csv()
+        self.figure = plt.figure(figsize=(6, 8))
 
     def load_csv(self):
         if self.csv_path_main.exists():
@@ -143,9 +144,14 @@ class Evaluator:
             self.iou_total += iou
 
             print(f"[{var_id}]: IoU = {iou}")
-            fig = self.make_figure(main_im, var_im, main_mask, var_mask, iou)
+
+            if args.show or args.fig_save:
+                fig = self.make_figure(
+                    main_im, var_im, main_mask, var_mask, iou)
+
             if args.show:
-                plt.show()
+                plt.show(block=False)
+                key = input("Press any key to continue or Ctrl+C to exit.")
 
             if args.fig_save:
                 self.save_figure(
@@ -154,7 +160,9 @@ class Evaluator:
             self.n_processed += 1
 
     def make_figure(self, main_im, var_im, main_mask, var_mask, iou):
-        fig = plt.figure(figsize=(6, 8))
+        fig = self.figure
+        plt.cla()
+        plt.clf()
         grid = plt.GridSpec(2, 2)
         ax1 = fig.add_subplot(grid[0, 0])
         ax2 = fig.add_subplot(grid[0, 1])
@@ -170,7 +178,6 @@ class Evaluator:
         Path.mkdir(self.figures_path, exist_ok=True)
         path = self.figures_path / f"{clip_name}_{i:04d}"
         fig.savefig(path)
-        plt.close(fig)
 
     def save_csv(self):
         self.df["image_main"] = self.main_paths

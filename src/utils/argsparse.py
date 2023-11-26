@@ -11,4 +11,5 @@ def parse_args():
     parser = argparse.ArgumentParser()
     ns = EvalArgsNamespace()
     parser.add_argument('--show', action='store_true')
+    parser.add_argument('--fig-save', action='store_true')
     return parser.parse_args(namespace=ns)

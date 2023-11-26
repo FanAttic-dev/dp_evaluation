@@ -17,4 +17,4 @@ evaluate_show:
 
 evaluate_fig_save:
 	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
-	python src/evaluate.py --fig_save
+	python src/evaluate.py --fig-save
