@@ -27,6 +27,7 @@ class Evaluator:
         self.csv_path_var = self.var_path / "losses.csv"
         self.csv_path_main = self.main_path / "evaluation.csv"
         self.txt_result_path = self.main_path / "result.txt"
+        self.figures_path = self.main_path / "figures"
         self.is_evaluated = self.load_csv()
 
     def load_csv(self):
@@ -78,7 +79,7 @@ class Evaluator:
     @staticmethod
     def threshold(im) -> np.ndarray:
         im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        _, im = cv2.threshold(im, 1, 255, cv2.THRESH_BINARY)
+        _, im = cv2.threshold(im, 1, 1, cv2.THRESH_BINARY)
         return im
 
     def evaluate(self):
@@ -131,24 +132,45 @@ class Evaluator:
             var_mask = self.threshold(var_im)
 
             h, w = main_mask.shape
-            intersection_mask = np.zeros((h, w, 1))
+            intersection_mask = np.zeros((h, w))
             intersection_mask[
                 np.logical_and(main_mask > 0, var_mask > 0)
             ] = 1
 
-            intersection = intersection_mask.sum()
-            union = main_mask.sum() + var_mask.sum() - intersection
-            iou = intersection / (union + Evaluator.EPS)
+            union_mask = main_mask + var_mask - intersection_mask
+            iou = intersection_mask.sum() / (union_mask.sum() + Evaluator.EPS)
             self.ious[df_idx] = iou
             self.iou_total += iou
 
             print(f"[{var_id}]: IoU = {iou}")
+            fig = self.make_figure(main_im, var_im, main_mask, var_mask, iou)
             if args.show:
-                compare_view(main_im, var_im)
-                show_overlap(main_mask, var_mask, iou)
                 plt.show()
 
+            if args.fig_save:
+                self.save_figure(
+                    fig, clip_name=main_frame_folder.stem, i=df_idx_i)
+
             self.n_processed += 1
+
+    def make_figure(self, main_im, var_im, main_mask, var_mask, iou):
+        fig = plt.figure(figsize=(6, 8))
+        grid = plt.GridSpec(2, 2)
+        ax1 = fig.add_subplot(grid[0, 0])
+        ax2 = fig.add_subplot(grid[0, 1])
+        ax3 = fig.add_subplot(grid[1, :])
+
+        compare_view(main_im, var_im, [ax1, ax2])
+        show_overlap(main_mask, var_mask, iou, ax3)
+
+        plt.tight_layout(pad=1)
+        return fig
+
+    def save_figure(self, fig, clip_name, i):
+        Path.mkdir(self.figures_path, exist_ok=True)
+        path = self.figures_path / f"{clip_name}_{i:04d}"
+        fig.savefig(path)
+        plt.close(fig)
 
     def save_csv(self):
         self.df["image_main"] = self.main_paths
@@ -186,6 +208,6 @@ Overall iou_median: {np.nanmedian(self.ious):.9f}
 if __name__ == "__main__":
     args = parse_args()
     evaluator = Evaluator(args)
-    if not evaluator.is_evaluated:
+    if not evaluator.is_evaluated or args.show:
         evaluator.evaluate()
     evaluator.print_info()

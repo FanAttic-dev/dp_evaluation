@@ -4,6 +4,7 @@ import argparse
 
 class EvalArgsNamespace(argparse.Namespace):
     show: bool
+    fig_save: bool
 
 
 def parse_args():
