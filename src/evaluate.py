@@ -27,7 +27,7 @@ class Evaluator:
         self.csv_path_var = self.var_path / "losses.csv"
         self.csv_path_main = self.main_path / "evaluation.csv"
         self.txt_result_path = self.main_path / "result.txt"
-        self.figures_path = self.main_path / "figures"
+        self.figures_path = self.main_path / "iou_figures"
         self.is_evaluated = self.load_csv()
         self.figure = plt.figure(figsize=(6, 8))
 
@@ -151,7 +151,7 @@ class Evaluator:
 
             if args.show:
                 plt.show(block=False)
-                key = input("Press any key to continue or Ctrl+C to exit.")
+                key = input("Press Enter to continue or Ctrl+C+Enter to exit.")
 
             if args.fig_save:
                 self.save_figure(
