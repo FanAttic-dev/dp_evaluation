@@ -1,13 +1,13 @@
 ---
 
 dataset:
-  var_path: "../../datasets/TrnavaZilina/VAR/full"
-  main_path: "/mnt/e/DP/dp_autocam/recordings/ALFA/2023-11-14_single-detector/full"
+  var_path: "../../datasets/TrnavaZilina/VAR/clips"
   # main_path: "../dp_autocam/recordings/2023-11-14_single-detector/clips"
+  main_path: "../../../output_footage/single-detector/clips"
 masks_output_dir: "tmp"
 
 export_every_x_seconds: 1 # Time interval to export a warped frame.
-pitch_overlay: true # Overlay the pitch model scheme on the exported frame.
+pitch_overlay: false # Overlay the pitch model scheme on the exported frame.
 
 
 image_size:
