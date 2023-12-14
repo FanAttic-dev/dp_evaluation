@@ -11,10 +11,11 @@ evaluate:
 	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
 	python src/evaluate.py
 
-evaluate_show:
-	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
-	python src/evaluate.py --show
-
 evaluate_fig_save:
 	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
 	python src/evaluate.py --fig-save
+
+evaluate_show:
+	export PYTHONPATH="${PYTHONPATH}:./src/tvcalib" && \
+	python src/evaluate.py --show
+	
