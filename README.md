@@ -4,7 +4,7 @@ This is a system for evaluating the Autocam output developed within the [master'
 
 The evaluation metric is the Intersection over Union (IoU) of the top-down projected estimated (main) and reference (VAR) frames, as shown in the figure.
 
-![IoU Visualization](images/../assets/images/eval1.png)
+![IoU Visualization](assets/images/eval1.png)
 
 ## Getting Started
 
@@ -101,7 +101,7 @@ The whole evaluation pipeline can be executed by `make all`.
 
 For calibration, the [TVCalib](https://github.com/mm4spa/tvcalib) method is utilized. For a detailed description of the methods, refer to the [master's thesis](https://is.muni.cz/th/l78dh/?lang=en).
 
-![Calibration results of VAR full match recordings](image/../assets/images/calibration.png)
+![Calibration results of VAR full match recordings](assets/images/calibration.png)
 
 ## Cite
 
