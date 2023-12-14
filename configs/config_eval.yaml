@@ -3,7 +3,7 @@
 dataset:
   var_path: "../../datasets/TrnavaZilina/VAR/clips"
   # main_path: "../dp_autocam/recordings/2023-11-14_single-detector/clips"
-  main_path: "../../../output_footage/single-detector/clips"
+  main_path: "../../../output_footage/single_detector/clips"
 masks_output_dir: "tmp"
 
 export_every_x_seconds: 1 # Time interval to export a warped frame.
