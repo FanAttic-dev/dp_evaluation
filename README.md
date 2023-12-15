@@ -49,6 +49,7 @@ The dataset paths are configured in the `configs/config_eval.yaml` file. The com
 |   └── p0_shot2_0000_warped.jpg
 |   └── p0_shot2_0001_warped.jpg
 |   └── p0_shot2_0002_warped.jpg
+|   └── ...
 ├── ...
 
 --------------------------------
@@ -63,6 +64,7 @@ The dataset paths are configured in the `configs/config_eval.yaml` file. The com
 |   └── p0_shot2_0000_warped.jpg
 |   └── p0_shot2_0001_warped.jpg
 |   └── p0_shot2_0002_warped.jpg
+|   └── ...
 ├── ...
 ```
 
